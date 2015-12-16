@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QTimer>
 
 // Интерфейс, через который задаём различные алгоритмы движения лифта
 class RankerInterface
@@ -25,8 +26,11 @@ class QElevator: public QObject
 {
     Q_OBJECT
 public:
-    explicit QElevator();
+    explicit QElevator(RankerInterface ranker_);
     ~QElevator();
+
+signals:
+    void NewFloorReached(int floor);
 
 public slots:
     void HandleSmokeEvent(bool is_smoked);
@@ -37,6 +41,9 @@ public slots:
     void HandleOpenDoors();
     void HandleSwitchOnOff(bool is_on);
 
+    // Этого метода нет ни в одной диаграмме - он нужен для реализации в QT:
+    void slotOneFloorMoved();
+
 private:
     bool lighting_status;
     bool is_on;
@@ -46,11 +53,16 @@ private:
     QVector<int> ranked_floors;
     RankerInterface ranker;
 
+    // Этого атрибута нет ни в одной диаграмме - он нужен именно для реализации в QT:
+    QTimer *timer;
+
     // Инициализация всех соединений
     void initConnections();
     // Разрыв всех соединений
     void destroyConnections();
     void onMovedFinished();
+    // На самом деле эта функция выполняется в отдельном потоке:
+    void moveTo(int floor);
 };
 
 #endif // ELEVATOR_H
