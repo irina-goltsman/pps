@@ -8,7 +8,7 @@
 class RankerInterface
 {
 public:
-    virtual void Rank(int current_floor, int direction, QVector<int> *ranked_floors,
+    virtual void Rank(int current_floor, QVector<int> *ranked_floors,
                       int new_floor);
 };
 
@@ -17,7 +17,7 @@ public:
 class ConcreteStupidRanker: public RankerInterface
 {
 public:
-    void Rank(int current_floor, int direction, QVector<int> *ranked_floors,
+    void Rank(int current_floor, QVector<int> *ranked_floors,
               int new_floor);
 };
 
@@ -29,8 +29,8 @@ public:
     ~QElevator();
 
 public slots:
-    void HandleSmokeEvent(bool checked);
-    void HandleWeightEvent(bool checked);
+    void HandleSmokeEvent(bool is_smoked);
+    void HandleWeightEvent(bool is_overloaded);
     void HandleAddFloorTask(int floor);
     void HandleDispatcherCall();
     void HandleCloseDoors();
@@ -44,11 +44,13 @@ private:
     bool is_blocked;
     // Упорядоченный список этажей для остановки (заданий для остановки)
     QVector<int> ranked_floors;
+    RankerInterface ranker;
 
     // Инициализация всех соединений
     void initConnections();
     // Разрыв всех соединений
     void destroyConnections();
+    void onMovedFinished();
 };
 
 #endif // ELEVATOR_H
