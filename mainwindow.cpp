@@ -15,10 +15,45 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_smoke_clicked(bool checked)
 {
-    // TODO: отправить сигнал на Elevator
+    elevator.HandleSmokeEvent(checked);
 }
 
-void MainWindow::on_weight_clicked(bool checked)
+void MainWindow::on_switchOnOff_clicked(bool checked)
 {
-    // TODO: отправить сигнал на Elevator
+    elevator.HandleSwitchOnOff(checked);
+}
+
+void MainWindow::on_floor_1_clicked()
+{
+    elevator.HandleAddFloorTask(1);
+}
+
+void MainWindow::on_floor_2_clicked()
+{
+    elevator.HandleAddFloorTask(2);
+}
+
+void MainWindow::on_floor_3_clicked()
+{
+    elevator.HandleAddFloorTask(3);
+}
+
+void MainWindow::on_floor_4_clicked()
+{
+    elevator.HandleAddFloorTask(4);
+}
+
+void MainWindow::on_floor_5_clicked()
+{
+    elevator.HandleAddFloorTask(5);
+}
+
+void MainWindow::on_floor_6_clicked()
+{
+    elevator.HandleAddFloorTask(6);
+}
+
+void MainWindow::on_floor_7_clicked()
+{
+    elevator.HandleAddFloorTask(7);
 }

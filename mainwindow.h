@@ -19,8 +19,23 @@ public:
 private slots:
     void on_smoke_clicked(bool checked);
 
+    void on_pushButton_8_clicked(bool checked);
 
-    void on_weight_clicked(bool checked);
+    void on_switchOnOff_clicked(bool checked);
+
+    void on_floor_1_clicked();
+
+    void on_floor_2_clicked();
+
+    void on_floor_3_clicked();
+
+    void on_floor_4_clicked();
+
+    void on_floor_5_clicked();
+
+    void on_floor_6_clicked();
+
+    void on_floor_7_clicked();
 
 private:
     Ui::MainWindow *ui; 

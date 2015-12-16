@@ -10,7 +10,7 @@ class RankerInterface
 {
 public:
     virtual void Rank(int current_floor, QVector<int> *ranked_floors,
-                      int new_floor);
+                      int new_floor) = 0;
 };
 
 // Просто последовательно выполняет все задания. Если запросы были 1, 10, 2,
@@ -26,7 +26,7 @@ class QElevator: public QObject
 {
     Q_OBJECT
 public:
-    explicit QElevator(RankerInterface ranker_);
+    explicit QElevator(RankerInterface *ranker_ = new ConcreteStupidRanker());
     ~QElevator();
 
 signals:
@@ -47,11 +47,11 @@ public slots:
 private:
     bool lighting_status;
     bool is_on;
-    short current_floor;
+    int current_floor;
     bool is_blocked;
     // Упорядоченный список этажей для остановки (заданий для остановки)
     QVector<int> ranked_floors;
-    RankerInterface ranker;
+    RankerInterface *ranker;
 
     // Этого атрибута нет ни в одной диаграмме - он нужен именно для реализации в QT:
     QTimer *timer;
@@ -61,8 +61,7 @@ private:
     // Разрыв всех соединений
     void destroyConnections();
     void onMovedFinished();
-    // На самом деле эта функция выполняется в отдельном потоке:
-    void moveTo(int floor);
+    void moveTo();
 };
 
 #endif // ELEVATOR_H
