@@ -8,7 +8,11 @@ void ConcreteStupidRanker::Rank(int current_floor,
 
 QElevator::QElevator(RankerInterface *ranker_): ranker(ranker_)
 {
+    lighting_status = false;
     timer = new QTimer(this);
+    current_floor = 1;
+    is_blocked = false;
+    is_moving = false;
 }
 
 QElevator::~QElevator()
@@ -22,10 +26,13 @@ QElevator::~QElevator()
 void QElevator::HandleSmokeEvent(bool is_smoked)
 {
     if (this->is_blocked && !is_smoked) {
+        is_blocked = is_smoked;
         // Значит задымление устранено, можно продолжить ехать дальше
-        QTimer::singleShot(500, this, SLOT(slotOneFloorMoved()));
+        moveTo();
+    } else {
+        is_blocked = is_smoked;
     }
-    is_blocked = is_smoked;
+
 }
 
 void QElevator::HandleWeightEvent(bool is_overloaded)
@@ -34,10 +41,13 @@ void QElevator::HandleWeightEvent(bool is_overloaded)
 
 void QElevator::HandleAddFloorTask(int floor)
 {
-    ranker->Rank(current_floor, &ranked_floors, floor);
-    if (ranked_floors.size() == 1 && !is_blocked) {
-        // Значит до этого лифт находился в состоянии сна и сейчас нужно начать движение
-        moveTo();
+    if (is_on) {
+        ranker->Rank(current_floor, &ranked_floors, floor);
+        emit TaskListChanged(ranked_floors);
+        if (!is_moving) {
+            // Значит до этого лифт не двигался
+            moveTo();
+        }
     }
 }
 
@@ -59,29 +69,34 @@ void QElevator::HandleSwitchOnOff(bool is_on)
         // То нужно включить лифт:
         initConnections();
         this->is_on = true;
+        this->is_blocked = false;
     }
 
     if (!is_on && this->is_on) {
         // То нужно выключить лифт:
+        ranked_floors.clear();
+        emit TaskListChanged(ranked_floors);
         destroyConnections();
         this->is_on = false;
+        this->is_blocked = true;
+        is_moving = false;
     }
 }
 
 void QElevator::slotOneFloorMoved()
 {
-    int one_step = ranked_floors.at(0) - current_floor > 0 ? 1 : -1;
-    current_floor += one_step;
-    emit NewFloorReached(current_floor);
-    if (current_floor == ranked_floors.at(0)) {
-        // Значит задание только что было выполнено
-        onMovedFinished();
-    } else {
-        // Значит ещё не добрались до нужного этажа.
-        if (!is_blocked) {
-            QTimer::singleShot(500, this, SLOT(slotOneFloorMoved()));
+    if (is_on) {
+        int one_step = 0;
+        if (ranked_floors.at(0) != current_floor) {
+            one_step = ranked_floors.at(0) - current_floor > 0 ? 1 : -1;
+        }
+        current_floor += one_step;
+        emit NewFloorReached(current_floor);
+        if (current_floor == ranked_floors.at(0)) {
+            // Значит задание только что было выполнено
+            onMovedFinished();
         } else {
-            // Значит лифт был блокирован - дальше не будем двигаться.
+            moveTo();
         }
     }
 }
@@ -101,11 +116,19 @@ void QElevator::destroyConnections()
 void QElevator::onMovedFinished()
 {
     ranked_floors.pop_front();
+    emit TaskListChanged(ranked_floors);
+    is_moving = false;
+    // На случай, если ещё есть задания:
+    moveTo();
 }
 
 void QElevator::moveTo()
 {
-    // Тут на самом деле происходит движение и при этом отправляется сигнал
-    // о перемещении на очередной этаж, но для простоты нашего MVP:
-    QTimer::singleShot(500, this, SLOT(slotOneFloorMoved()));
+    if (!ranked_floors.empty() && !is_blocked && is_on) {
+        // Значит ещё есть задания для выполения
+        // Тут на самом деле происходит движение и при этом отправляется сигнал
+        // о перемещении на очередной этаж, но для простоты нашего MVP:
+        is_moving = true;
+        QTimer::singleShot(1000, this, SLOT(slotOneFloorMoved()));
+    }
 }

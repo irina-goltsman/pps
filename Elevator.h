@@ -32,6 +32,9 @@ public:
 signals:
     void NewFloorReached(int floor);
 
+    // Чисто отладочный сигнал, его нет в диаграммах:
+    void TaskListChanged(QVector<int>);
+
 public slots:
     void HandleSmokeEvent(bool is_smoked);
     void HandleWeightEvent(bool is_overloaded);
@@ -55,6 +58,7 @@ private:
 
     // Этого атрибута нет ни в одной диаграмме - он нужен именно для реализации в QT:
     QTimer *timer;
+    bool is_moving;
 
     // Инициализация всех соединений
     void initConnections();

@@ -6,6 +6,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(&elevator, SIGNAL (NewFloorReached(int)),
+            this, SLOT (updateFloor(int)));
+    connect(&elevator, SIGNAL (TaskListChanged(QVector<int>)),
+            this, SLOT(updateTaskList(QVector<int>)));
 }
 
 MainWindow::~MainWindow()
@@ -56,4 +60,18 @@ void MainWindow::on_floor_6_clicked()
 void MainWindow::on_floor_7_clicked()
 {
     elevator.HandleAddFloorTask(7);
+}
+
+void MainWindow::updateFloor(int cur_floor)
+{
+    ui->textBrowser->setText(QString("current floor = ") + QString::number(cur_floor));
+}
+
+void MainWindow::updateTaskList(QVector<int> task_list)
+{
+    QString tasks;
+    for (int task : task_list) {
+        tasks += QString::number(task) + QString("\n");
+    }
+    ui->textBrowser_2->setText(tasks);
 }

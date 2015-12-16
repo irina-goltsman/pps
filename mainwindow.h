@@ -19,8 +19,6 @@ public:
 private slots:
     void on_smoke_clicked(bool checked);
 
-    void on_pushButton_8_clicked(bool checked);
-
     void on_switchOnOff_clicked(bool checked);
 
     void on_floor_1_clicked();
@@ -36,6 +34,10 @@ private slots:
     void on_floor_6_clicked();
 
     void on_floor_7_clicked();
+
+    void updateFloor(int cur_floor);
+
+    void updateTaskList(QVector<int> task_list);
 
 private:
     Ui::MainWindow *ui; 
