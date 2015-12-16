@@ -11,3 +11,8 @@ void QElevator::HandleAddFloorTask(int floor)
 {
     ranker.Rank(current_floor,ranked_floors, floor);
 }
+
+void QElevator::onMovedFinished()
+{
+    ranked_floors.pop_front();
+}
